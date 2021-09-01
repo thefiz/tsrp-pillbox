@@ -1,4 +1,4 @@
-import StaffDAO from "../dao/StaffDAO.js";
+import StaffDAO from "../dao/staffDAO.js";
 
 export default class StaffController {
   static async apiGetStaff(req, res, next) {
@@ -8,11 +8,7 @@ export default class StaffController {
     const page = req.query.page ? parseInt(req.query.page, 10) : 0;
 
     let filters = {};
-    if (req.query.department) {
-      filters.department = req.query.department;
-    } else if (req.query.rank) {
-      filters.rank = req.query.rank;
-    } else if (req.query.name) {
+    if (req.query.name) {
       filters.name = req.query.name;
     }
 
@@ -30,5 +26,73 @@ export default class StaffController {
       total_results: totalNumStaff,
     };
     res.json(response);
+  }
+  static async apiAddStaff(req, res, next) {
+    try {
+      const userInfo = {
+        userName: req.body.userName,
+        _id: req.body.user_id,
+      };
+      const date = new Date();
+      const name = req.body.name;
+      const rank = req.body.rank;
+      const callsign = req.body.callsign;
+      const discord = req.body.discord;
+      const phone = req.body.phone;
+
+      const staffResponse = await StaffDAO.addStaff(
+        userInfo,
+        date,
+        name,
+        rank,
+        callsign,
+        discord,
+        phone
+      );
+      res.json({ status: "success" });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  }
+
+  static async apiEditStaff(req, res, next) {
+    try {
+      const staffId = req.body.staff_id;
+      const userInfo = {
+        userName: req.body.userName,
+        _id: req.body.user_id,
+      };
+      const date = new Date();
+      const name = req.body.name;
+      const rank = req.body.rank;
+      const callsign = req.body.callsign;
+      const discord = req.body.discord;
+      const phone = req.body.phone;
+
+      const staffResponse = await StaffDAO.editStaff(
+        staffId,
+        userInfo,
+        date,
+        name,
+        rank,
+        callsign,
+        discord,
+        phone
+      );
+      res.json({ status: "success" });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  }
+
+  static async apiRemoveStaff(req, res, next) {
+    try {
+      const staffId = req.body.staff_id;
+      const userId = req.body.user_id;
+      const staffResponse = await StaffDAO.removeStaff(staffId, userId);
+      res.json({ status: "success" });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
   }
 }

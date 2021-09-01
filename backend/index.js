@@ -2,6 +2,7 @@ import app from "./server.js";
 import mongodb from "mongodb";
 import dotenv from "dotenv";
 import StaffDAO from "./dao/staffDAO.js";
+import PatientsDAO from "./dao/patientsDAO.js"
 dotenv.config();
 const MongoClient = mongodb.MongoClient;
 
@@ -18,6 +19,7 @@ MongoClient.connect(process.env.TSRPPILLBOX_DB_URI, {
   })
   .then(async (client) => {
     await StaffDAO.injectDB(client);
+    await PatientsDAO.injectDB(client);
     app.listen(port, () => {
       console.log(`listening on port ${port}`);
     });
