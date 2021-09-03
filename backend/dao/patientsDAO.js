@@ -57,9 +57,8 @@ export default class PatientsDAO {
     }
   }
 
-  static async addPatient(
+  static async addPatients(
     user,
-    date,
     name,
     phone,
     dob,
@@ -71,13 +70,15 @@ export default class PatientsDAO {
       const patientsDoc = {
         name: name,
         phone: phone,
-        dob: dob,
+        dob: new Date(dob),
         blood_type: blood,
-        emergency_contact_name: emergencyName,
-        emergency_contact_phone: emergencyPhone,
-        last_edit_by_id: user.id,
+        last_edit_by_id: user._id,
         last_edit_by_name: user.userName,
-        last_edit_date: date,
+        last_edit_date: new Date(),
+        emergency_contact: {
+          name: emergencyName,
+          phone: emergencyPhone,
+        },
       };
 
       return await patients.insertOne(patientsDoc);
@@ -87,10 +88,9 @@ export default class PatientsDAO {
     }
   }
 
-  static async editPatient(
+  static async editPatients(
     patientsId,
     user,
-    date,
     name,
     phone,
     dob,
@@ -105,13 +105,15 @@ export default class PatientsDAO {
           $set: {
             name: name,
             phone: phone,
-            dob: dob,
+            dob: new Date(dob),
             blood_type: blood,
-            emergency_contact_name: emergencyName,
-            emergency_contact_phone: emergencyPhone,
-            last_edit_by_id: user.id,
+            last_edit_by_id: user._id,
             last_edit_by_name: user.userName,
-            last_edit_date: date,
+            last_edit_date: new Date(),
+            emergency_contact: {
+              name: emergencyName,
+              phone: emergencyPhone,
+            },
           },
         }
       );
@@ -122,7 +124,7 @@ export default class PatientsDAO {
     }
   }
 
-  static async removePatient(patientsId, userId) {
+  static async removePatients(patientsId, userId) {
     try {
       const deleteResponse = await patients.deleteOne({
         _id: ObjectId(patientsId),
@@ -132,6 +134,98 @@ export default class PatientsDAO {
     } catch (e) {
       console.error(`Unable to delete patients: ${e}`);
       return { error: e };
+    }
+  }
+
+  static async getPatientsByID(id) {
+    try {
+      const pipeline = [
+        {
+          $match: {
+            _id: new ObjectId(id),
+          },
+        },
+        {
+          $lookup: {
+            from: "visits",
+            let: {
+              id: "$_id",
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ["$patients_id", "$$id"],
+                  },
+                },
+              },
+              {
+                $sort: {
+                  date: -1,
+                },
+              },
+            ],
+            as: "visits",
+          },
+        },
+        {
+          $lookup: {
+            from: "prescriptions",
+            let: {
+              id: "$_id",
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ["$patients_id", "$$id"],
+                  },
+                },
+              },
+              {
+                $sort: {
+                  date: -1,
+                },
+              },
+            ],
+            as: "prescriptions",
+          },
+        },
+        {
+          $lookup: {
+            from: "appointments",
+            let: {
+              id: "$_id",
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ["$patients_id", "$$id"],
+                  },
+                },
+              },
+              {
+                $sort: {
+                  date: -1,
+                },
+              },
+            ],
+            as: "appointments",
+          },
+        },
+        {
+          $addFields: {
+            visits: "$visits",
+            prescriptions: "$prescriptions",
+            appointments: "$appointments",
+          },
+        },
+      ];
+      return await patients.aggregate(pipeline).next();
+    } catch (e) {
+      console.error(`Something went wrong in getPatientsByID: ${e}`);
+      throw e;
     }
   }
 }

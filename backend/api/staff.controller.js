@@ -33,7 +33,6 @@ export default class StaffController {
         userName: req.body.userName,
         _id: req.body.user_id,
       };
-      const date = new Date();
       const name = req.body.name;
       const rank = req.body.rank;
       const callsign = req.body.callsign;
@@ -42,7 +41,6 @@ export default class StaffController {
 
       const staffResponse = await StaffDAO.addStaff(
         userInfo,
-        date,
         name,
         rank,
         callsign,
@@ -62,7 +60,6 @@ export default class StaffController {
         userName: req.body.userName,
         _id: req.body.user_id,
       };
-      const date = new Date();
       const name = req.body.name;
       const rank = req.body.rank;
       const callsign = req.body.callsign;
@@ -72,7 +69,6 @@ export default class StaffController {
       const staffResponse = await StaffDAO.editStaff(
         staffId,
         userInfo,
-        date,
         name,
         rank,
         callsign,

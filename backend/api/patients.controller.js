@@ -33,17 +33,15 @@ export default class PatientsController {
         userName: req.body.userName,
         _id: req.body.user_id,
       };
-      const date = new Date();
       const name = req.body.name;
       const phone = req.body.phone;
-      const dob = Date(req.body.dob)
-      const blood = req.body.blood_type
+      const dob = req.body.dob
+      const blood = req.body.blood
       const emergencyName = req.body.emergency_contact_name
       const emergencyPhone = req.body.emergency_contact_phone
 
       const patientsResponse = await PatientsDAO.addPatients(
         userInfo,
-        date,
         name,
         phone,
         dob,
@@ -64,10 +62,9 @@ export default class PatientsController {
         userName: req.body.userName,
         _id: req.body.user_id,
       };
-      const date = new Date();
       const name = req.body.name;
       const phone = req.body.phone;
-      const dob = Date(req.body.dob)
+      const dob = req.body.dob
       const blood = req.body.blood
       const emergencyName = req.body.emergency_name
       const emergencyPhone = req.body.emergency_phone
@@ -75,7 +72,6 @@ export default class PatientsController {
       const patientsResponse = await PatientsDAO.editPatients(
         patientsId,
         userInfo,
-        date,
         name,
         phone,
         dob,
@@ -99,5 +95,20 @@ export default class PatientsController {
       res.status(500).json({ error: e.message });
     }
   }
-}
+
+  static async apiGetPatientsById(req, res, next) {
+    try {
+      let id = req.params.id || {}
+      let patient = await PatientsDAO.getPatientsByID(id)
+      if (!patient) {
+        res.status(404).json({ error: "Not found" })
+        return
+      }
+      res.json(patient)
+    } catch (e) {
+      console.log(`api, ${e}`)
+      res.status(500).json({ error: e })
+    }
+  }
+} 
 

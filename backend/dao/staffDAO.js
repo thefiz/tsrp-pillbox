@@ -49,7 +49,7 @@ export default class StaffDAO {
     }
   }
 
-  static async addStaff(user, date, name, rank, callsign, discord, phone) {
+  static async addStaff(user, name, rank, callsign, discord, phone) {
     try {
       const staffDoc = {
         name: name,
@@ -57,9 +57,9 @@ export default class StaffDAO {
         callsign: callsign,
         discord: discord,
         phone: phone,
-        last_edit_by_id: user.id,
+        last_edit_by_id: user._id,
         last_edit_by_name: user.userName,
-        last_edit_date: date
+        last_edit_date: new Date()
       };
 
       return await staff.insertOne(staffDoc);
@@ -72,7 +72,6 @@ export default class StaffDAO {
   static async editStaff(
     staffId,
     user,
-    date,
     name,
     rank,
     callsign,
@@ -89,9 +88,9 @@ export default class StaffDAO {
             callsign: callsign,
             discord: discord,
             phone: phone,
-            lastEditedBy: user.userName,
-            lastEditedById: user._id,
-            lastEditedDate: date,
+            last_edit_by_name: user.userName,
+            last_edit_by_id: user._id,
+            last_edit_date: new Date()
           },
         }
       );
