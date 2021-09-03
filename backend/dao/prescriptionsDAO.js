@@ -57,10 +57,27 @@ export default class PrescriptionsDAO {
     }
   }
 
-  static async addPrescriptions(user, prescription) {
+  static async addPrescriptions(
+    user,
+    date,
+    drug,
+    refills,
+    patientsId,
+    staffId,
+    filled,
+    fillDate,
+    notes
+  ) {
     try {
       const prescriptionsDoc = {
-        prescription: prescription,
+        date: date,
+        drug: drug,
+        refills: refills,
+        patients_id: ObjectId(patientsId),
+        staff_id: ObjectId(staffId),
+        filled: filled,
+        fill_date: fillDate,
+        notes: notes,
         last_edit_by_id: user._id,
         last_edit_by_name: user.userName,
         last_edit_date: new Date(),
@@ -73,13 +90,31 @@ export default class PrescriptionsDAO {
     }
   }
 
-  static async editPrescriptions(prescriptionsId, user, prescription) {
+  static async editPrescriptions(
+    prescriptionsId,
+    user,
+    date,
+    drug,
+    refills,
+    patientsId,
+    staffId,
+    filled,
+    fillDate,
+    notes
+  ) {
     try {
       const updateResponse = await prescriptions.updateOne(
         { _id: ObjectId(prescriptionsId) },
         {
           $set: {
-            prescription: prescription,
+            date: date,
+            drug: drug,
+            refills: refills,
+            patients_id: ObjectId(patientsId),
+            staff_id: ObjectId(staffId),
+            filled: filled,
+            fill_date: fillDate,
+            notes: notes,
             last_edit_by_id: user._id,
             last_edit_by_name: user.userName,
             last_edit_date: new Date(),
@@ -103,6 +138,73 @@ export default class PrescriptionsDAO {
     } catch (e) {
       console.error(`Unable to delete prescriptions: ${e}`);
       return { error: e };
+    }
+  }
+  static async getPrescriptionsByID(id, staffId, patientsId) {
+    try {
+      const pipeline = [
+        {
+          $match: {
+            _id: new ObjectId(id),
+          },
+        },
+        {
+          $lookup: {
+            from: "patients",
+            let: {
+              id: new ObjectId(patientsId),
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ["$patients_id", "$id"],
+                  },
+                },
+              },
+              {
+                $sort: {
+                  date: -1,
+                },
+              },
+            ],
+            as: "patients",
+          },
+        },
+        {
+          $lookup: {
+            from: "staff",
+            let: {
+              id: new ObjectId(staffId),
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ["$staff_id", "$id"],
+                  },
+                },
+              },
+              {
+                $sort: {
+                  date: -1,
+                },
+              },
+            ],
+            as: "staff",
+          },
+        },
+        {
+          $addFields: {
+            patients: "$patients",
+            staff: "$staff",
+          },
+        },
+      ];
+      return await prescriptions.aggregate(pipeline).next();
+    } catch (e) {
+      console.error(`Something went wrong in getPrescriptionByID: ${e}`);
+      throw e;
     }
   }
 }

@@ -38,6 +38,7 @@ export default class StaffController {
       const callsign = req.body.callsign;
       const discord = req.body.discord;
       const phone = req.body.phone;
+      const hireDate = req.body.hire_date;
 
       const staffResponse = await StaffDAO.addStaff(
         userInfo,
@@ -45,7 +46,8 @@ export default class StaffController {
         rank,
         callsign,
         discord,
-        phone
+        phone,
+        hireDate
       );
       res.json({ status: "success" });
     } catch (e) {
@@ -65,6 +67,7 @@ export default class StaffController {
       const callsign = req.body.callsign;
       const discord = req.body.discord;
       const phone = req.body.phone;
+      const hireDate = req.body.hireDate;
 
       const staffResponse = await StaffDAO.editStaff(
         staffId,
@@ -73,7 +76,8 @@ export default class StaffController {
         rank,
         callsign,
         discord,
-        phone
+        phone,
+        hireDate
       );
       res.json({ status: "success" });
     } catch (e) {
@@ -89,6 +93,21 @@ export default class StaffController {
       res.json({ status: "success" });
     } catch (e) {
       res.status(500).json({ error: e.message });
+    }
+  }
+
+  static async apiGetStaffById(req, res, next) {
+    try {
+      let id = req.params.id || {}
+      let staff = await StaffDAO.getStaffByID(id)
+      if (!staff) {
+        res.status(404).json({ error: "Not found" })
+        return
+      }
+      res.json(staff)
+    } catch (e) {
+      console.log(`api, ${e}`)
+      res.status(500).json({ error: e })
     }
   }
 }

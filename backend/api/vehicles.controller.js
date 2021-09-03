@@ -40,11 +40,15 @@ export default class VehiclesController {
       };
       const plate = req.body.plate
       const upgrades = req.body.upgrades
+      const type = req.body.type
+      const staffId = req.body.staff_id
 
       const vehiclesResponse = await VehiclesDAO.addVehicles
     (
         userInfo,
         plate,
+        type,
+        staffId,
         upgrades
       );
       res.json({ status: "success" });
@@ -63,12 +67,16 @@ export default class VehiclesController {
       };
       const plate = req.body.plate
       const upgrades = req.body.upgrades
+      const type = req.body.type
+      const staffId = req.body.staff_id
 
       const vehiclesResponse = await VehiclesDAO.editVehicles
     (
         vehiclesId,
         userInfo,
         plate,
+        type,
+        staffId,
         upgrades
       );
       res.json({ status: "success" });

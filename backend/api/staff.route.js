@@ -10,4 +10,6 @@ router
   .put(StaffCtrl.apiEditStaff)
   .delete(StaffCtrl.apiRemoveStaff);
 
+  router.route("/id/:id").get(StaffCtrl.apiGetStaffById)
+
 export default router;

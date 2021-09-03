@@ -69,8 +69,8 @@ export default class VisitsDAO {
     try {
       const visitsDoc = {
         name: name,
-        patients_id: patientId,
-        staff_id: staffId,
+        patients_id: ObjectId(patientId),
+        staff_id: ObjectId(staffId),
         date: date,
         reason: reason,
         diagnosis: diagnosis,
@@ -106,8 +106,8 @@ export default class VisitsDAO {
         {
           $set: {
             name: name,
-            patients_id: patientId,
-            staff_id: staffId,
+            patients_id: ObjectId(patientId),
+            staff_id: ObjectId(staffId),
             date: date,
             reason: reason,
             diagnosis: diagnosis,

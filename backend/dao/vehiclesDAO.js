@@ -54,10 +54,12 @@ export default class VehiclesDAO {
     }
   }
 
-  static async addVehicles(user, plate, upgrades) {
+  static async addVehicles(user, plate, type, staffId, upgrades) {
       try {
           const vehiclesDoc = {
               plate: plate,
+              type: type,
+              staff_id: ObjectId(staffId),
               upgrades: upgrades,
               last_edit_by_id: user._id,
               last_edit_by_name: user.userName,
@@ -71,13 +73,15 @@ export default class VehiclesDAO {
       }
   }
 
-  static async editVehicles(vehiclesId, user, plate, upgrades) {
+  static async editVehicles(vehiclesId, user, plate, type, staffId, upgrades) {
     try {
         const updateResponse = await vehicles.updateOne(
             {_id: ObjectId(vehiclesId)},
             {
                 $set: {
                     plate: plate,
+                    type: type,
+                    staff_id: ObjectId(staffId),
                     upgrades: upgrades,
                     last_edit_by_id: user._id,
                     last_edit_by_name: user.userName,

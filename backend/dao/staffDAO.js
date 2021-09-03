@@ -113,4 +113,120 @@ export default class StaffDAO {
       return { error: e };
     }
   }
+
+  static async getStaffByID(id) {
+    try {
+      const pipeline = [
+        {
+          $match: {
+            _id: new ObjectId(id),
+          },
+        },
+        {
+          $lookup: {
+            from: "visits",
+            let: {
+              id: "$_id",
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ["$staff_id", "$$id"],
+                  },
+                },
+              },
+              {
+                $sort: {
+                  date: -1,
+                },
+              },
+            ],
+            as: "visits",
+          },
+        },
+        {
+          $lookup: {
+            from: "prescriptions",
+            let: {
+              id: "$_id",
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ["$staff_id", "$$id"],
+                  },
+                },
+              },
+              {
+                $sort: {
+                  date: -1,
+                },
+              },
+            ],
+            as: "prescriptions",
+          },
+        },
+        {
+          $lookup: {
+            from: "appointments",
+            let: {
+              id: "$_id",
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ["$staff_id", "$$id"],
+                  },
+                },
+              },
+              {
+                $sort: {
+                  date: -1,
+                },
+              },
+            ],
+            as: "appointments",
+          },
+        },
+        {
+          $lookup: {
+            from: "vehicles",
+            let: {
+              id: "$_id",
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ["$staff_id", "$$id"],
+                  },
+                },
+              },
+              {
+                $sort: {
+                  date: -1,
+                },
+              },
+            ],
+            as: "vehicles",
+          },
+        },
+        {
+          $addFields: {
+            visits: "$visits",
+            prescriptions: "$prescriptions",
+            appointments: "$appointments",
+            vehicles: "$vehicles",
+          },
+        },
+      ];
+      return await staff.aggregate(pipeline).next();
+    } catch (e) {
+      console.error(`Something went wrong in getStaffByID: ${e}`);
+      throw e;
+    }
+  }
 }

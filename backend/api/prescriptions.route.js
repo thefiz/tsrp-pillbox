@@ -10,4 +10,6 @@ router
   .put(PrescriptionsCtrl.apiEditPrescriptions)
   .delete(PrescriptionsCtrl.apiRemovePrescriptions);
 
+  router.route("/id/:id").get(PrescriptionsCtrl.apiGetPrescriptionsById)
+
 export default router;
